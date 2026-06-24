@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Finance Tracker{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+
+<!-- Summary cards -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
+        <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">₹{{ total_income }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Total Expense</p>
+        <p class="text-2xl font-bold text-red-500 dark:text-red-400 mt-1">₹{{ total_expense }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Balance</p>
+        <p class="text-2xl font-bold {% if balance >= 0 %}text-indigo-600 dark:text-indigo-400{% else %}text-red-500{% endif %} mt-1">
+            ₹{{ balance }}
+        </p>
+    </div>
+</div>
+
+<div class="flex flex-col lg:flex-row gap-6">
+    <!-- Recent transactions -->
+    <div class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold">Recent Transactions</h2>
+            <a href="{% url 'transaction_list' %}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">View all</a>
+        </div>
+
+        {% if recent_transactions %}
+        <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+            {% for t in recent_transactions %}
+            <li class="flex items-center justify-between py-3">
+                <div>
+                    <p class="font-medium">{{ t.title }}</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500">
+                        {{ t.category.name|default:"Uncategorized" }} • {{ t.date }}
+                    </p>
+                </div>
+                <span class="font-semibold {% if t.transaction_type == 'income' %}text-green-600 dark:text-green-400{% else %}text-red-500{% endif %}">
+                    {% if t.transaction_type == 'income' %}+{% else %}-{% endif %}₹{{ t.amount }}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-sm text-gray-400 dark:text-gray-500 py-6 text-center">
+            No transactions yet. <a href="{% url 'add_transaction' %}" class="text-indigo-600 dark:text-indigo-400 hover:underline">Add your first one</a>.
+        </p>
+        {% endif %}
+
+        <a href="{% url 'add_transaction' %}"
+            class="mt-4 inline-flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition-colors">
+            + Add Transaction
+        </a>
+    </div>
+
+    <!-- Expense breakdown chart -->
+    <div class="lg:w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <h2 class="font-semibold mb-4">Expense Breakdown</h2>
+        {% if chart_labels %}
+        <canvas id="expenseChart" height="220"></canvas>
+        {% else %}
+        <p class="text-sm text-gray-400 dark:text-gray-500 text-center py-10">
+            Add some expenses to see your breakdown here.
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if chart_labels %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    const ctx = document.getElementById('expenseChart');
+    const isDark = document.documentElement.classList.contains('dark');
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                data: {{ chart_values|safe }},
+                backgroundColor: [
+                    '#6366f1', '#22c55e', '#f97316', '#ef4444',
+                    '#06b6d4', '#a855f7', '#eab308', '#ec4899'
+                ],
+                borderWidth: 0,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: isDark ? '#e5e7eb' : '#374151' }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

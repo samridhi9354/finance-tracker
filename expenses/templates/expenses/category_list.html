@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Categories - Finance Tracker{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Categories</h1>
+
+<div class="flex flex-col lg:flex-row gap-6">
+    <!-- Category list -->
+    <div class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        {% if categories %}
+        <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+            {% for c in categories %}
+            <li class="flex items-center justify-between px-5 py-3">
+                <div>
+                    <p class="font-medium">{{ c.name }}</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500">{{ c.get_category_type_display }}</p>
+                </div>
+                <a href="{% url 'delete_category' c.pk %}" class="text-red-500 hover:underline text-sm">Delete</a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-sm text-gray-400 dark:text-gray-500 py-10 text-center">No categories yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Add category form -->
+    <div class="lg:w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <h2 class="font-semibold mb-4">Add Category</h2>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label class="block text-sm font-medium mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <button type="submit"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition-colors">
+                Add Category
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

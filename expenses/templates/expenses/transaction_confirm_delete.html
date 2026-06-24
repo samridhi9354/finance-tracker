@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Delete Transaction - Finance Tracker{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 text-center">
+    <h1 class="text-xl font-bold mb-2">Delete Transaction?</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+        Are you sure you want to delete <span class="font-medium">"{{ transaction.title }}"</span>?
+        This action cannot be undone.
+    </p>
+
+    <form method="post" class="flex gap-3">
+        {% csrf_token %}
+        <button type="submit"
+            class="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-2 rounded-lg transition-colors">
+            Yes, Delete
+        </button>
+        <a href="{% url 'transaction_list' %}"
+            class="flex-1 text-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 font-medium py-2 rounded-lg transition-colors">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock %}

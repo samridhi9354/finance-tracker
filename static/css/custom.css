@@ -1,0 +1,17 @@
+/* Small custom styles to complement Tailwind */
+
+/* Smooth transitions for theme switching */
+* {
+    transition-property: background-color, border-color, color;
+    transition-duration: 150ms;
+}
+
+/* Custom scrollbar (optional, looks cleaner) */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(99, 102, 241, 0.4);
+    border-radius: 9999px;
+}
